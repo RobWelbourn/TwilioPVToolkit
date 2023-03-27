@@ -1,0 +1,33 @@
+{
+  "type": "module",
+  "dependencies": {
+    "express": "^4.18.2",
+    "loglevel": "^1.8.1",
+    "twilio": "^4.8.0"
+  },
+  "name": "orpheus",
+  "description": "Voice scripting with the Twilio API",
+  "version": "0.1.0",
+  "main": "call.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/RobWelbourn/Orpheus.git"
+  },
+  "keywords": [
+    "Twilio",
+    "voice",
+    "scripting"
+  ],
+  "author": "Robert Welbourn robert@welbourn.com",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/RobWelbourn/Orpheus/issues"
+  },
+  "homepage": "https://github.com/RobWelbourn/Orpheus#readme",
+  "devDependencies": {
+    "jest": "^29.5.0"
+  }
+}
