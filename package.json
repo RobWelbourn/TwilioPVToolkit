@@ -2,10 +2,11 @@
   "type": "module",
   "dependencies": {
     "express": "^4.18.2",
+    "libphonenumber-js": "^1.10.26",
     "loglevel": "^1.8.1",
     "twilio": "^4.8.0"
   },
-  "name": "orpheus",
+  "name": "twiliopvtoolkit",
   "description": "Voice scripting with the Twilio API",
   "version": "0.1.0",
   "main": "call.js",
@@ -21,7 +22,7 @@
     "voice",
     "scripting"
   ],
-  "author": "Robert Welbourn robert@welbourn.com",
+  "author": "Robert Welbourn rwelbourn@twilio.com https://linkedin.com/RobertWelbourn",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/RobWelbourn/Orpheus/issues"
