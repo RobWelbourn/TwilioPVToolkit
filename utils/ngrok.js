@@ -10,7 +10,7 @@
  * @returns {Promise} - Returns an object containing {publicUrl, localPort} when the Promise is resolved
  */
 export function getTunnelInfo() {
-    return fetch('http://localhost:4040/api/tunnels')
+    return fetch('http://127.0.0.1:4040/api/tunnels')
         .then(response => response.json())
         .then(obj => 
             ({
