@@ -105,7 +105,8 @@ if (args.length < 3) {
     console.log('Team:', team);
     setup()
         .then(() => script(team, fromNum, message))
-        .then(() => process.exit(0));  // Shuts down the web server
+        .catch(err => console.error(err))
+        .finally(() => process.exit(0));  // Shuts down the web server
 } else {
     console.error(`Team dataset ${args[0]} could not be found`);
 }

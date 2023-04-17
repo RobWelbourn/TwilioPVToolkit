@@ -91,4 +91,5 @@ const script = async function(inCall) {
 }
 
 setup({script})
-    .then(() => console.log('Script is running'));
+    .then(() => console.log('Script is running'))
+    .catch(err => console.error(err));

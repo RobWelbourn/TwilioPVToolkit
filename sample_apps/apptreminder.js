@@ -112,7 +112,8 @@ if (args.length == 0) {
 } else if (datasets.has(args[0])) {
     setup()
         .then(() => script(datasets.get(args[0])))
-        .then(() => process.exit(0));  // Shuts down the web server
+        .catch(err => console.error(err))
+        .finally(() => process.exit(0));  // Shuts down the web server
 } else {
     console.error(`Appointment dataset ${args[0]} could not be found`);
 }

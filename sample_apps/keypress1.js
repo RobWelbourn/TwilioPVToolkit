@@ -47,5 +47,6 @@ if (args.length < 2) {
 } else {
     setup()
         .then(() => script(args[0], args[1]))
-        .then(() => process.exit(0)); 
+        .catch(err => console.error(err))
+        .finally(() => process.exit(0)); 
 }

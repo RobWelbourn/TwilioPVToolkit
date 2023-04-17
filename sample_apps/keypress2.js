@@ -34,4 +34,5 @@ const script = async function(call) {
  }
 
 setup({inboundScript: script})
-    .then(() => console.log('Ready for calls'));
+    .then(() => console.log('Ready for calls'))
+    .catch(err => console.error(err));

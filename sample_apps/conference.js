@@ -118,7 +118,8 @@ if (args.length == 0) {
     participants = datasets.get(args[0]);
     console.log('Participants:', participants);
     setup({script})
-        .then(() => console.log('Script is ready'));
+        .then(() => console.log('Script is ready'))
+        .catch(err => console.error(err));
 } else {
     console.error(`Group dataset ${args[0]} could not be found`);
 }
