@@ -62,9 +62,9 @@ export class CallEndedException extends Error {
  * in the script to be executed.
  */
 export class Call {
-    #webhookResolve;            // Permits the next step in the script to execute
+    #webhookFulfill;            // Permits the next step in the script to execute
     #webhookReject;             // Called in the event of the other end hanging up prematurely, or some other failure
-    #twimlResolve;              // Called when new TwiML is available to be returned by a webhook
+    #twimlFulfill;              // Called when new TwiML is available to be returned by a webhook
     #twimlReject;               // Would indicate an internal failure in response to a webhook; not currently used
     #voiceResponse;             // Wrapped VoiceResponse object, used to generate TwiML
     #scriptContinues = true;    // True when more TwiML is to be returned
@@ -73,9 +73,9 @@ export class Call {
     /*
      * Do not call directly. Use the factory method Call.makeCall() instead.
      */
-    constructor(properties, webhookResolve, webhookReject) {
+    constructor(properties, webhookFulfill, webhookReject) {
         this.#updateProperties(properties);
-        this.#webhookResolve = webhookResolve;
+        this.#webhookFulfill = webhookFulfill;
         this.#webhookReject = webhookReject;
         this.#voiceResponse = new VoiceResponse();
     }
@@ -139,7 +139,7 @@ export class Call {
      */
     static makeCall(to, from, options) {
         options = Call.#validateOptions(options);
-        return new Promise((resolve, reject) => {
+        return new Promise((fulfill, reject) => {
             client.calls
                 .create({
                     to,
@@ -148,8 +148,7 @@ export class Call {
                     url: `${serverUrl}/webhook`,
                     statusCallback: `${serverUrl}/status`
                 })
-                .then(call => currentCalls[call.sid] = new Call(call, resolve, reject))
-                .catch(err => reject(err));
+                .then(call => currentCalls[call.sid] = new Call(call, fulfill, reject))
         });
     }
 
@@ -336,13 +335,13 @@ export class Call {
      * @returns {Promise} - Promise that will be settled by the next webhook or status callback
      */
     sendResponse() {
-        return new Promise((resolve, reject) => {
+        return new Promise((fulfill, reject) => {
             if (this.#scriptContinues) {                    // If this is not the last step...
                 this.#voiceResponse.redirect(`${serverUrl}/webhook`); // Make sure Twilio returns control to the script for the next step
             }
             const twiml = this.#voiceResponse.toString();
-            this.#twimlResolve(twiml);                      // Resolves Promise to send back some TwiML
-            this.#webhookResolve = resolve;                 // Waits for the next webhook or status callback
+            this.#twimlFulfill(twiml);                      // Resolves Promise to send back some TwiML
+            this.#webhookFulfill = fulfill;                 // Waits for the next webhook or status callback
             this.#webhookReject = reject;                   // Fired if the other end hangs up
             if (this.#scriptContinues) {
                 this.#voiceResponse = new VoiceResponse();  // Creates a new VoiceResponse for the next step
@@ -356,11 +355,11 @@ export class Call {
      * @returns {Promise} - Promise that will be settled by the next webhook or status callback
      */
     sendFinalResponse() {
-        return new Promise((resolve, reject) => {
+        return new Promise((fulfill, reject) => {
             this.#scriptContinues = false;
             const twiml = this.#voiceResponse.toString();
-            this.#twimlResolve(twiml);                      // Resolves Promise to send back some TwiML
-            this.#webhookResolve = resolve;                 // Waits for the next webhook or status callback
+            this.#twimlFulfill(twiml);                      // Resolves Promise to send back some TwiML
+            this.#webhookFulfill = fulfill;                 // Waits for the next webhook or status callback
             this.#webhookReject = reject;                   // Fired if the other end hangs up
         });
     }
@@ -371,8 +370,8 @@ export class Call {
      * @returns {Promise} - Promise that resolves to the Call object.
      */
     nextEvent() {
-        return new Promise((resolve, reject) => {
-            this.#webhookResolve = resolve;
+        return new Promise((fulfill, reject) => {
+            this.#webhookFulfill = fulfill;
             this.#webhookReject = reject;
         })
     }
@@ -382,8 +381,8 @@ export class Call {
      * Returns a Promise that is settled when the next script step invokes sendResponse().
      */
     #getTwiml(response) {
-        return new Promise((resolve, reject) => {
-            this.#twimlResolve = resolve;                   // Waits for the next step in the script
+        return new Promise((fulfill, reject) => {
+            this.#twimlFulfill = fulfill;                   // Waits for the next step in the script
             this.#twimlReject = reject;                     // ...or if something goes horribly wrong
         })
         .then(twiml => {
@@ -398,7 +397,8 @@ export class Call {
      */
     _respondToWebhook(request, response) {
         this.#updateProperties(request.body);
-        this.#webhookResolve(this);
+        this.eventSource = 'webhook';
+        this.#webhookFulfill(this);
         this.#getTwiml(response);
     }
 
@@ -408,12 +408,13 @@ export class Call {
      */
     _respondToStatusCallback(request, response) {
         this.#updateProperties(request.body);
+        this.eventSource = 'status';
         switch (this.status) {
             case 'canceled':
             case 'busy':
             case 'no-answer':
             case 'failed':
-                this.#webhookResolve(this);
+                this.#webhookFulfill(this);
                 delete currentCalls[this.sid];
                 break;
 
@@ -421,7 +422,7 @@ export class Call {
                 if (this.#scriptContinues) {
                     this.#webhookReject(new CallEndedException(this));
                 } else {
-                    this.#webhookResolve(this);
+                    this.#webhookFulfill(this);
                 }
                 delete currentCalls[this.sid];
                 break;
@@ -429,7 +430,7 @@ export class Call {
             case 'initiated':
             case 'ringing':
             case 'in-progress':
-                this.#webhookResolve(this);
+                this.#webhookFulfill(this);
                 break;
 
             default:
@@ -446,7 +447,8 @@ export class Call {
      */
     _respondToChildStatusCallback(request, response) {
         this.#updateChildProperties(request.body);
-        this.#webhookResolve(this);
+        this.eventSource = 'dial';
+        this.#webhookFulfill(this);
         if (this.#scriptContinues) {
             this.#getTwiml(response);
         } else {
@@ -460,6 +462,7 @@ export class Call {
      * Gets TwiML from a script in response to an inbound call.
      */
     _respondToInboundCall(response) {
+        this.eventSource = 'inbound';
         this.#getTwiml(response);
     }
 }
@@ -485,7 +488,7 @@ app.post('/webhook', (request, response) => {
 });
 
 /*
- * Handles the end-of-call status callback.
+ * Handles status callbacks.
  */
 app.post('/status', (request, response) => {
     log.debug('Parent status:', request.body);
@@ -508,7 +511,7 @@ app.post('/dial', (request, response) => {
     if (sid && sid in currentCalls) {
         currentCalls[sid]._respondToChildStatusCallback(request, response);
     } else {
-        log.debug('Parent call', sid, 'not found in current calls');
+        log.warn('Parent call', sid, 'not found in current calls');
         response.status(204).end(); 
     }
 });
@@ -536,7 +539,7 @@ app.post('/inbound', (request, response) => {
  * Express server running. If no server details are specified, the function attempts to locate
  * a locally running Ngrok tunnel and use its details.
  * @param {Object} [options] - Options
- * @param {string} [options.accounSid=process.env.TWILIO_ACCOUNT_SID] - Account SID
+ * @param {string} [options.accountSid=process.env.TWILIO_ACCOUNT_SID] - Account SID
  * @param {string} [options.apiKey=process.env.TWILIO_API_KEY] - API key SID
  * @param {string} [options.apiSecret=process.env.TWILIO_API_SECRET] - API key secret
  * @param {string} [options.serverUrl=Ngrok tunnel public URL] - Server URL for webhooks and callbacks
@@ -544,8 +547,7 @@ app.post('/inbound', (request, response) => {
  * @param {Function} [options.script] - Function to invoke upon post to '/inbound' webhook
  * @returns {Promise} - Promise resolved when server has been started
  */
-export async function setup(options) {
-    options = options || {};
+export async function setup(options={}) {
     accountSid = options.accountSid || process.env.TWILIO_ACCOUNT_SID;
     apiKey = options.apiKey || process.env.TWILIO_API_KEY;
     apiSecret = options.apiSecret || process.env.TWILIO_API_SECRET;
@@ -557,7 +559,7 @@ export async function setup(options) {
         port = options.port || DEFAULT_PORT;
         app.listen(port, () => log.info(`Server running on port ${port}`));
     } else {
-        return getTunnelInfo()
+        getTunnelInfo()
             .then(info => {
                 serverUrl = info.publicUrl;
                 port = info.localPort;
