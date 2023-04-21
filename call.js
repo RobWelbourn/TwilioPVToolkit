@@ -148,7 +148,12 @@ export class Call {
                     url: `${serverUrl}/webhook`,
                     statusCallback: `${serverUrl}/status`
                 })
-                .then(call => currentCalls[call.sid] = new Call(call, fulfill, reject))
+                .then(callProperties => {
+                    const call = new Call(callProperties, fulfill, reject);
+                    call.eventSource = 'api';
+                    currentCalls[call.sid] = call;
+                })
+                .catch(err => reject(err));
         });
     }
 
@@ -170,10 +175,7 @@ export class Call {
         return {
             sid: 'sid',
             CallSid: 'sid',
-            dateCreated: 'dateCreated',
-            dateUpdated: 'dateUpdated',
             parentCallSid: 'parentCallSid',
-            accountSid: 'accountSid',
             to: 'to',
             To: 'to',
             toFormatted: 'toFormatted',
@@ -182,22 +184,13 @@ export class Call {
             fromFormatted: 'fromFormatted',
             callerName: 'callerName',
             CallerName: 'callerName',
-            phoneNumberSid: 'phoneNumberSid',
             status: 'status',
             CallStatus: 'status',
-            startTime: 'startTime',
-            endTime: 'endTime',
             duration: 'duration',
             Duration: 'duration',
-            CallDuration: 'callDuration',
-            price: 'price',
-            priceUnit: 'priceUnit',
             direction: 'direction',
-            answeredBy: 'answeredBy',
             forwardedFrom: 'forwardedFrom',
-            groupSid: 'groupSid',
             queueTime: 'queueTime',
-            trunkSid: 'trunkSid',
             StirStatus: 'stirStatus',
             StirVerstat: 'stirVerstat',
             StirPassportToken: 'stirPassportToken',
@@ -209,13 +202,11 @@ export class Call {
             FinishedOnKey: 'finishedOnKey',
             SpeechResult: 'speechResult',
             Confidence: 'confidence',
+            answeredBy: 'answeredBy',
             AnsweredBy: 'answeredBy',
             MachineDetectionDuration: 'machineDetectionDuration',
             DialCallStatus: 'dialCallStatus',
             DialCallSid: 'dialCallSid',
-            DialCallDuration: 'dialCallDuration',
-            DialBridged: 'dialBridged',
-            RecordingUrl: 'recordingUrl',
         }
     } 
 
@@ -462,7 +453,6 @@ export class Call {
      * Gets TwiML from a script in response to an inbound call.
      */
     _respondToInboundCall(response) {
-        this.eventSource = 'inbound';
         this.#getTwiml(response);
     }
 }
@@ -524,6 +514,7 @@ app.post('/inbound', (request, response) => {
     const sid = request.body.CallSid;
     if (sid) {
         const call = new Call(request.body);
+        call.eventSource = 'inbound';
         currentCalls[sid] = call;
         call._respondToInboundCall(response);
         inboundScript(call);
@@ -545,6 +536,7 @@ app.post('/inbound', (request, response) => {
  * @param {string} [options.serverUrl=Ngrok tunnel public URL] - Server URL for webhooks and callbacks
  * @param {string} [options.port=Ngrok local port, or 3000 if not using Ngrok] - Server TCP port
  * @param {Function} [options.script] - Function to invoke upon post to '/inbound' webhook
+ * @param {string} [options.phoneNumber] - Configures the phone number for the inbound script
  * @returns {Promise} - Promise resolved when server has been started
  */
 export async function setup(options={}) {
@@ -557,14 +549,24 @@ export async function setup(options={}) {
     if (options.serverUrl) {
         serverUrl = options.serverUrl;
         port = options.port || DEFAULT_PORT;
-        app.listen(port, () => log.info(`Server running on port ${port}`));
     } else {
-        getTunnelInfo()
-            .then(info => {
-                serverUrl = info.publicUrl;
-                port = info.localPort;
-                log.info('Server URL:', serverUrl);
-                app.listen(port, () => log.info(`Server running on port ${port}`));
-            });
+        const info = await getTunnelInfo();
+        serverUrl = info.publicUrl;
+        port = info.localPort;
     }
+    
+    if (options.phoneNumber) {
+        const matchingNums = await client.incomingPhoneNumbers.list({
+            phoneNumber: options.phoneNumber
+        });
+        if (matchingNums.length != 1) {
+            throw new Error(`Unable to configure ${options.phoneNumber}: not found in this account`);
+        }
+        const pn = await client.incomingPhoneNumbers(matchingNums[0].sid).update({
+            voiceUrl: serverUrl + '/inbound'
+        });
+        log.info('Provisioned', pn.friendlyName, 'with voice URL', pn.voiceUrl);
+    }
+    
+    app.listen(port, () => log.info('Server running on port', port, 'with URL', serverUrl));
 }
