@@ -8,7 +8,7 @@
   },
   "name": "twiliopvtoolkit",
   "description": "Voice scripting with the Twilio API",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "main": "call.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -25,9 +25,9 @@
   "author": "Robert Welbourn rwelbourn@twilio.com https://linkedin.com/RobertWelbourn",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/RobWelbourn/Orpheus/issues"
+    "url": "https://github.com/RobWelbourn/TwilioPVToolkit/issues"
   },
-  "homepage": "https://github.com/RobWelbourn/Orpheus#readme",
+  "homepage": "https://github.com/RobWelbourn/TwilioPVToolkit#readme",
   "devDependencies": {
     "jest": "^29.5.0"
   }
