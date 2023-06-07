@@ -1,7 +1,7 @@
 /**
  * @module ngrok
  * 
- * Queries the local Ngork Agent API to get tunnel information.
+ * Queries the local Ngrok Agent API to get tunnel information.
  * @see {@link https://ngrok.com/docs/ngrok-agent/api/}
  */
 
