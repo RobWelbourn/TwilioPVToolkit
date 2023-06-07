@@ -85,42 +85,39 @@ export class Call {
      * with how the Call module works.
      */
     static #validateOptions(options) {
-        if (options) {
-            for (let option in options) {
-                switch (option) {
-                    case 'accountSid':                  // In makeCall() and various <Dial> nouns...
-                    case 'method':
-                    case 'fallbackUrl':
-                    case 'fallbackMethod':
-                    case 'statusCallback':
-                    case 'statusCallbackMethod':
-                    case 'url':
-                    case 'twiml':
-                    case 'applicationSid':
-                    case 'action':                      // In <Dial> and <Gather>
-                    case 'partialResultsCallback':      // In <Gather>...
-                    case 'partialResultsCallbackMethod':
-                    case 'actionOnEmptyResult':
-                        throw new Error(`${option} is not allowed in this context`, {cause: {option}});
+        for (let option in options) {
+            switch (option) {
+                case 'accountSid':                  // In makeCall() and various <Dial> nouns...
+                case 'method':
+                case 'fallbackUrl':
+                case 'fallbackMethod':
+                case 'statusCallback':
+                case 'statusCallbackMethod':
+                case 'url':
+                case 'twiml':
+                case 'applicationSid':
+                case 'action':                      // In <Dial> and <Gather>
+                case 'partialResultsCallback':      // In <Gather>...
+                case 'partialResultsCallbackMethod':
+                case 'actionOnEmptyResult':
+                    throw new Error(`${option} is not allowed in this context`, {cause: {option}});
 
-                    case 'to':                          // In makeCall()...
-                    case 'from':
-                        throw new Error(`${option} in options duplicates the ${option} parameter`, {cause: {option}});
+                case 'to':                          // In makeCall()...
+                case 'from':
+                    throw new Error(`${option} in options duplicates the ${option} parameter`, {cause: {option}});
 
-                    case 'referUrl':                    // In <Dial>...
-                    case 'referMethod':
-                        throw new Error('Refer is not currently supported', {cause: {option}});
+                case 'referUrl':                    // In <Dial>...
+                case 'referMethod':
+                    throw new Error('Refer is not currently supported', {cause: {option}});
 
-                    // If there's a list of statusCallback events, make sure 'completed' is included.
-                    case 'statusCallbackEvent':
-                        if (!options.statusCallbackEvent.includes('completed')) {
-                            options.statusCallbackEvent.push('completed');
-                        }
-                        break;
-                }
+                // If there's a list of statusCallback events, make sure 'completed' is included.
+                case 'statusCallbackEvent':
+                    if (!options.statusCallbackEvent.includes('completed')) {
+                        options.statusCallbackEvent.push('completed');
+                    }
+                    break;
             }
         }
-        return options;
     }
 
     /**
@@ -138,7 +135,7 @@ export class Call {
      * @returns {Promise} - Promise that resolves to the Call object
      */
     static makeCall(to, from, options) {
-        options = Call.#validateOptions(options);
+        Call.#validateOptions(options);
         return new Promise((fulfill, reject) => {
             client.calls
                 .create({
@@ -262,7 +259,7 @@ export class Call {
      * @returns {Gather} - @see {@link https://www.twilio.com/docs/libraries/reference/twilio-node/4.8.0/classes/twiml_VoiceResponse.export_-1.html#gather}
      */
     gather(...args) { 
-        args = Call.#validateOptions(args);
+        Call.#validateOptions(args);
         delete this.digits;
         delete this.finishedOnKey;
         delete this.speechResult;
@@ -286,7 +283,7 @@ export class Call {
      * @returns {Dial} - @see {@link https://www.twilio.com/docs/libraries/reference/twilio-node/4.8.0/classes/twiml_VoiceResponse.export_-1.html#dial}
      */
     dial(...args) { 
-        args = Call.#validateOptions(args);
+        Call.#validateOptions(args);
         if (args.length == 0) {
             return this.#voiceResponse.dial({action: `${serverUrl}/dial`});
         } else if (typeof args[0] == 'object') {
