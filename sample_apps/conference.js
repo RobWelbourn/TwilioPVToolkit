@@ -44,9 +44,9 @@ async function makeOutboundCall(to, from, responder, initiator, callToken) {
                     console.log(responder, 'is joining the conference');
                     call.say('Connecting you to the conference');
                     call.dial().conference(confName);
-                    await call.sendResponse();
-                    console.log(responder, 'has left the conference');
-                    return call.sendFinalResponse();
+                    call.sendFinalResponse()
+                        .then(() => console.log(responder, 'has left the conference'));
+                    return;
 
                 } else {
                     console.log(responder, 'has declined to join')
