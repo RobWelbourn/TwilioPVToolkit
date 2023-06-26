@@ -276,22 +276,14 @@ export class Call {
     }
 
     /**
-     * Calls the dial() method of the wrapped VoiceResponse object. There will always be a webhook at the
-     * end of the dialed call, which is handled specially.   
+     * Calls the dial() method of the wrapped VoiceResponse object. 
      * @param  {...any} args - @see {@link https://www.twilio.com/docs/voice/twiml/dial}
      *                  DO NOT set the action URL; the callback will be handled automatically.
      * @returns {Dial} - @see {@link https://www.twilio.com/docs/libraries/reference/twilio-node/4.8.0/classes/twiml_VoiceResponse.export_-1.html#dial}
      */
     dial(...args) { 
         Call.#validateOptions(args);
-        if (args.length == 0) {
-            return this.#voiceResponse.dial({action: `${serverUrl}/dial`});
-        } else if (typeof args[0] == 'object') {
-            args[0].action = `${serverUrl}/dial`;
-            return this.#voiceResponse.dial(...args);
-        } else {
-            return this.#voiceResponse.dial({action: `${serverUrl}/dial`}, ...args);
-        }
+        return this.#voiceResponse.dial(...args);
     }
 
     /**
