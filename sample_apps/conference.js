@@ -52,7 +52,8 @@ async function makeOutboundCall(to, from, responder, initiator, callToken) {
                     console.log(responder, 'has declined to join')
                     call.say('Another time, maybe. Goodbye.')
                     call.hangup();
-                    return call.sendResponse();
+                    call.sendResponse();
+                    return;
                 }
             }
     
@@ -60,18 +61,16 @@ async function makeOutboundCall(to, from, responder, initiator, callToken) {
             console.log(responder, 'has not responded');
             call.say('We did not get your response. Goodbye.')
             call.hangup();
-            return call.sendResponse();
+            call.sendResponse();
 
         } else {
             // Busy, no answer, call failed, etc.
             console.log(`${responder} did not answer. Reason: ${call.status}; SIP code: ${call.sipResponseCode}`);
-            return call;
         }
 
     } catch (err) {
         if (err instanceof CallEndedException) {
             console.log(responder, 'hung up before joining');
-            return call;
         } else {
             // Most likely the Twilio REST API rejected the call attempt in Call.makeCall().
             console.error(`Call to ${responder} failed: ${err.message}`);  
