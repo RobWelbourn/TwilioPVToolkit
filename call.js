@@ -116,6 +116,12 @@ export class Call {
                         options.statusCallbackEvent.push('completed');
                     }
                     break;
+
+                // If async AMD is being invoked, set the callback URL.
+                case 'asyncAmd':
+                    options.asyncAmdStatusCallback = `${serverUrl}/amd`;
+                    options.asyncAmdStatusCallbackMethod = 'POST';
+                    break;
             }
         }
     }
@@ -142,7 +148,7 @@ export class Call {
                     to,
                     from,
                     ...options,
-                    url: `${serverUrl}/webhook`,
+                    url: `${serverUrl}/webhook?source=makeCall`,
                     statusCallback: `${serverUrl}/status`
                 })
                 .then(callProperties => {
@@ -266,12 +272,12 @@ export class Call {
         delete this.confidence;
 
         if (args.length == 0) {
-            return this.#voiceResponse.gather({action: `${serverUrl}/webhook`});
+            return this.#voiceResponse.gather({action: `${serverUrl}/webhook?source=gather`});
         }else if (typeof args[0] == 'object') {
-            args[0].action = `${serverUrl}/webhook`;
+            args[0].action = `${serverUrl}/webhook?source=gather`;
             return this.#voiceResponse.gather(...args);
         } else {
-            return this.#voiceResponse.gather({action: `${serverUrl}/webhook`}, ...args);
+            return this.#voiceResponse.gather({action: `${serverUrl}/webhook?source=gather`}, ...args);
         }
     }
 
@@ -317,7 +323,7 @@ export class Call {
     sendResponse() {
         return new Promise((fulfill, reject) => {
             if (this.#scriptContinues) {                    // If this is not the last step...
-                this.#voiceResponse.redirect(`${serverUrl}/webhook`); // Make sure Twilio returns control to the script for the next step
+                this.#voiceResponse.redirect(`${serverUrl}/webhook?source=redirect`); // Make sure Twilio returns control to the script for the next step
             }
             const twiml = this.#voiceResponse.toString();
             this.#twimlFulfill(twiml);                      // Resolves Promise to send back some TwiML
@@ -444,6 +450,16 @@ export class Call {
     _respondToInboundCall(response) {
         this.#getTwiml(response);
     }
+
+    /*
+     * Respond to an async AMD status callback.  We will simply set the variables in the Call
+     * object, and the script can poll those values as required.
+     */
+    _respondToAmdStatusCallback(request, response) {
+        this.#updateProperties(request.body);
+        this.eventSource = 'asyncAmd';
+        response.status(204).end(); 
+    }
 }
 
 
@@ -510,6 +526,20 @@ app.post('/inbound', (request, response) => {
     } else {
         log.warn('Inbound call webhook did not contain a call SID');
         response.status(400).end(); 
+    }
+});
+
+/*
+ * Handles an asynchronous Answering Machine Detection status callback.
+ */
+app.post('/amd', (request, response) => {
+    log.debug('Async AMD callback:', request.body);
+    const sid = request.body.CallSid;
+    if (sid && sid in currentCalls) {
+        currentCalls[sid]._respondToAmdStatusCallback(request, response);
+    } else {
+        log.warn('Call', sid, 'not found in current calls');
+        response.status(204).end(); 
     }
 });
 
