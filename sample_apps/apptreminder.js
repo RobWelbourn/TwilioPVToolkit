@@ -25,8 +25,8 @@ async function script(dataset) {
         call = await Call.makeCall(dataset.to, dataset.from);
 
         if (call.status == 'in-progress') {
-            call.pause(4);
-            call.say(`This is an appointment reminder message for ${dataset.patient}`);
+            call.pause({length: 3});        // Give a human the opportunity to say 'Hello'
+            call.say(`This is an appointment reminder for ${dataset.patient}`);
             await call.sendResponse();
     
             let gatherSuccess = false;
