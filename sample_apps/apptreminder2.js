@@ -138,7 +138,7 @@ async function script(dataset) {
 
 const args = process.argv.slice(2);
 if (args.length == 0) {
-    console.error('Usage: node apptreminder.js dataset_name');
+    console.error('Usage: node apptreminder2.js dataset_name');
 } else if (datasets.has(args[0])) {
     setup()
         .then(() => script(datasets.get(args[0])))
