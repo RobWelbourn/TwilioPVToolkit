@@ -44,8 +44,13 @@ async function script(dataset) {
             while (!call.answeredBy) {
                 await new Timeout(1000).wait();  // Wait one second
             }
+
+            // If we are running dual-event AMD, we need to wait for the machine-end event
+            while (call.answeredBy === 'machine_start') {
+                await new Timeout(1000).wait();  // Wait one second
+            }
             
-            if (call.answeredBy != 'human') {
+            if (call.answeredBy !== 'human') {
                 dataset.outcome = 'left message';
                 const pn = nationalPN(dataset.forward);
                 call.say(`This is an appointment reminder for ${dataset.patient} . ` +
