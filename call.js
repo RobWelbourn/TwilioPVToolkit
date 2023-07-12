@@ -465,7 +465,7 @@ export class Call {
      */
     _respondToAmdStatusCallback(request, response) {
         this.#updateProperties(request.body);
-        this.eventSource = 'asyncAmd';
+        this.eventSource = 'asyncAmd';  
         response.status(204).end(); 
     }
 }
