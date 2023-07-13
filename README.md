@@ -16,12 +16,13 @@ A post describing how to use the PV Toolkit, how it was built, and the use of Pr
 
 ## `call.js`
 
-This is the main module of the toolkit. It provides the `setup()` function for starting the Express web server, and handling webhooks and status callbacks from Twilio. Most importantly, it provides the `Call` class, which provides methods for making Outbound API calls and for returning TwiML in response to webhooks.
+This is the main module of the toolkit. It provides the `setup()` function for starting the Express web server, and handling webhooks and status callbacks from Twilio. Most importantly, it defines the `Call` class, which provides methods for making Outbound API calls and for returning [TwiML](https://www.twilio.com/docs/voice/twiml) in response to webhooks.
 
 ## `utils`
 
 The `utils` directory supplies helper modules:
 
+- `client.js` -- Provides a function to get a Twilio REST API client, using supplied credentials or those taken from environment variables.
 - `ngrok.js` -- Provides the function `getTunnelInfo()` for allowing the Express web server to determine its public URL and the local port it is using.
 - `phonenumbers.js` -- A wrapper around the [libphonenumber](https://gitlab.com/catamphetamine/libphonenumber) package, which converts between "friendly", local format phone numbers, and [E.164](https://www.twilio.com/docs/glossary/what-e164), international format numbers.
 - `timeout.js` -- A "Promise-ified" version of the `setTimeout()` standard function, allowing pausing for a given number of milliseconds, or for timing out some action.

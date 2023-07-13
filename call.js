@@ -18,6 +18,7 @@ import log from 'loglevel';
 import Twilio from 'twilio';
 import VoiceResponse from 'twilio/lib/twiml/VoiceResponse.js';
 import { getTunnelInfo } from './utils/ngrok.js';
+import { getClient } from './utils/client.js';
 
 const logLevel = process.env.DEBUG;
 log.setLevel(logLevel ? logLevel : 'info');
@@ -557,9 +558,8 @@ app.post('/amd', (request, response) => {
  * Express server running. If no server details are specified, the function attempts to locate
  * a locally running Ngrok tunnel and use its details.
  * @param {Object} [options] - Options
- * @param {string} [options.accountSid=process.env.TWILIO_ACCOUNT_SID] - Account SID
- * @param {string} [options.apiKey=process.env.TWILIO_API_KEY] - API key SID
- * @param {string} [options.apiSecret=process.env.TWILIO_API_SECRET] - API key secret
+ * @param {Object} [options.client] - Twilio REST API client; created from credentials in environment variables,
+ * if not specified
  * @param {string} [options.serverUrl=Ngrok tunnel public URL] - Server URL for webhooks and callbacks
  * @param {string} [options.port=Ngrok local port, or 3000 if not using Ngrok] - Server TCP port
  * @param {Function} [options.script] - Function to invoke upon post to '/inbound' webhook
@@ -567,10 +567,7 @@ app.post('/amd', (request, response) => {
  * @returns {Promise} - Promise resolved when server has been started
  */
 export async function setup(options={}) {
-    accountSid = options.accountSid || process.env.TWILIO_ACCOUNT_SID;
-    apiKey = options.apiKey || process.env.TWILIO_API_KEY;
-    apiSecret = options.apiSecret || process.env.TWILIO_API_SECRET;
-    client = new Twilio(apiKey, apiSecret, {accountSid: accountSid});
+    client = options.client || getClient();
     inboundScript = options.script || defaultInboundScript;
 
     if (options.serverUrl) {
