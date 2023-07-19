@@ -1,34 +1,36 @@
 {
+  "name": "twiliopvtoolkit",
+  "description": "Voice scripting with the Twilio API",
+  "version": "0.1.4",
+  "main": "call.js",
   "type": "module",
+  "author": "Robert Welbourn rwelbourn@twilio.com https://linkedin.com/RobertWelbourn",
+  "license": "MIT",
+  "homepage": "https://github.com/RobWelbourn/TwilioPVToolkit#readme",
+  "keywords": [
+    "Twilio",
+    "voice",
+    "JavaScript"
+  ],
   "dependencies": {
+    "dotenv": "^16.3.1",
     "express": "^4.18.2",
     "libphonenumber-js": "^1.10.26",
     "loglevel": "^1.8.1",
     "twilio": "^4.8.0"
   },
-  "name": "twiliopvtoolkit",
-  "description": "Voice scripting with the Twilio API",
-  "version": "0.1.3",
-  "main": "call.js",
+  "devDependencies": {
+    "jest": "^29.5.0"
+  },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "doc": "jsdoc -c jsdoc.json"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/RobWelbourn/Orpheus.git"
+    "url": "https://github.com/RobWelbourn/TwilioPVToolkit.git"
   },
-  "keywords": [
-    "Twilio",
-    "voice",
-    "scripting"
-  ],
-  "author": "Robert Welbourn rwelbourn@twilio.com https://linkedin.com/RobertWelbourn",
-  "license": "MIT",
   "bugs": {
     "url": "https://github.com/RobWelbourn/TwilioPVToolkit/issues"
-  },
-  "homepage": "https://github.com/RobWelbourn/TwilioPVToolkit#readme",
-  "devDependencies": {
-    "jest": "^29.5.0"
   }
 }

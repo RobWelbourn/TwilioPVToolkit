@@ -1,17 +1,45 @@
-/**
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: call.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: call.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
  * @module call
  * 
  * @description The call module provides classes for call handling. It also configures and starts an Express web server 
  * to handle the associated webhooks and status callbacks. It exports the following:
- * <ol>
- * <li> The Call class, which encapsulates a running call and its state. It wraps a Twilio VoiceResponse object that is
+ * &lt;ol>
+ * &lt;li> The Call class, which encapsulates a running call and its state. It wraps a Twilio VoiceResponse object that is
  *      used to generate TwiML in response to webhooks.
  * 
- * <li> The CallEndedException class, which is used to indicate that a call has ended prematurely, usually because the far
+ * &lt;li> The CallEndedException class, which is used to indicate that a call has ended prematurely, usually because the far
  *      end has hung up before a script has finished executing.
  * 
- * <li> The setup() function, which is used to configure and start the Express web server.
- * </ol>
+ * &lt;li> The setup() function, which is used to configure and start the Express web server.
+ * &lt;/ol>
  */
 
 import express from 'express';
@@ -58,7 +86,7 @@ export class CallEndedException extends Error {
  * Represents the state of a call. This class wraps a Twilio VoiceResponse object used to generate TwiML.
  * A Call object responds to webhooks and status callbacks, which settle a Promise that allows the next step  
  * in the script to be executed.
- * <br>
+ * &lt;br>
  * Call properties are derived from the results of an outbound API call, webhooks or status callbacks,
  * with the exceptions of eventSource and childCalls.  The most important ones are listed below.  
  * A definitive list is returned by the propertyMappings property.  Some properties are only applicable to childCalls.
@@ -95,21 +123,21 @@ export class Call {
     /**  
      * The status of the call: 
      * ['queued', 'initiated', 'ringing', 'in-progress', 'completed', 'busy', 'no-answer', 'canceled', 'failed']  
-     * <br>See {@link https://support.twilio.com/hc/en-us/articles/223132547-What-are-the-Possible-Call-Statuses-and-What-do-They-Mean-}
+     * &lt;br>See {@link https://support.twilio.com/hc/en-us/articles/223132547-What-are-the-Possible-Call-Statuses-and-What-do-They-Mean-}
      * */
     status;
 
     /**
      * The status of a child call: [initiated', 'ringing', 'in-progress', 'completed', 'busy', 'no-answer', 'canceled', 'failed']
-     * <br>See {@link https://support.twilio.com/hc/en-us/articles/223132547-What-are-the-Possible-Call-Statuses-and-What-do-They-Mean-}
-     * <br> Property of the child call.
+     * &lt;br>See {@link https://support.twilio.com/hc/en-us/articles/223132547-What-are-the-Possible-Call-Statuses-and-What-do-They-Mean-}
+     * &lt;br> Property of the child call.
      */
     dialCallStatus;
 
     /**  
      * Who or what answered the call: 
      * ['human', 'fax', 'machine_start', 'machine_end_beep', 'machine_end_silence', 'machine_end_other', 'unknown']
-     * <br>See {@link https://www.twilio.com/docs/voice/answering-machine-detection}
+     * &lt;br>See {@link https://www.twilio.com/docs/voice/answering-machine-detection}
      */
     answeredBy;
 
@@ -118,7 +146,7 @@ export class Call {
 
     /**  
      * Call token received on an inbound call leg, which can be used for an outbound API call.
-     * <br>[More...]{@link https://www.twilio.com/docs/voice/trusted-calling-with-shakenstir#call-forwarding-coming-later}   
+     * &lt;br>[More...]{@link https://www.twilio.com/docs/voice/trusted-calling-with-shakenstir#call-forwarding-coming-later}   
      */
     callToken;
 
@@ -126,7 +154,7 @@ export class Call {
      * SHAKEN/STIR attestation for an inbound call, if present:
      * ['TN-Validation-Passed-A', 'TN-Validation-Passed-B', 'TN-Validation-Passed-C', 
      *  'TN-Validation-Failed-A', 'TN-Validation-Failed-B', 'TN-Validation-Failed-C', 'No-TN-Validation', 'NULL']
-     * <br>[More...]{@link https://www.twilio.com/docs/voice/trusted-calling-with-shakenstir#changes-for-twilio-customers}
+     * &lt;br>[More...]{@link https://www.twilio.com/docs/voice/trusted-calling-with-shakenstir#changes-for-twilio-customers}
      */
     stirVerstat;
 
@@ -186,7 +214,7 @@ export class Call {
     static #validateOptions(options) {
         for (let option in options) {
             switch (option) {
-                case 'accountSid':                  // In makeCall() and various <Dial> nouns...
+                case 'accountSid':                  // In makeCall() and various &lt;Dial> nouns...
                 case 'method':
                 case 'fallbackUrl':
                 case 'fallbackMethod':
@@ -195,8 +223,8 @@ export class Call {
                 case 'url':
                 case 'twiml':
                 case 'applicationSid':
-                case 'action':                      // In <Dial> and <Gather>
-                case 'partialResultsCallback':      // In <Gather>...
+                case 'action':                      // In &lt;Dial> and &lt;Gather>
+                case 'partialResultsCallback':      // In &lt;Gather>...
                 case 'partialResultsCallbackMethod':
                 case 'actionOnEmptyResult':
                     throw new Error(`${option} is not allowed in this context`, {cause: {option}});
@@ -205,7 +233,7 @@ export class Call {
                 case 'from':
                     throw new Error(`${option} in options duplicates the ${option} parameter`, {cause: {option}});
 
-                case 'referUrl':                    // In <Dial>...
+                case 'referUrl':                    // In &lt;Dial>...
                 case 'referMethod':
                     throw new Error('Refer is not currently supported', {cause: {option}});
 
@@ -417,7 +445,7 @@ export class Call {
 
     /**
      * Generates the accumulated TwiML from the wrapped VoiceResponse object, and signals to the webhook handler
-     * that it is ready to be sent. If this is a non-final response, a <Redirect> is added to the end of the TwiML
+     * that it is ready to be sent. If this is a non-final response, a &lt;Redirect> is added to the end of the TwiML
      * to ensure that control is returned to the script.
      * @returns {Promise} - Promise that will be settled by the next webhook or status callback
      */
@@ -575,7 +603,7 @@ app.use(express.urlencoded({extended: true}));
 app.post('/webhook', (request, response) => {
     log.debug('Webhook:', request.body);
     const sid = request.body.CallSid;
-    if (sid && sid in currentCalls) {
+    if (sid &amp;&amp; sid in currentCalls) {
         currentCalls[sid]._respondToWebhook(request, response);
     } else {
         log.warn('Call', sid, 'not found in current calls');
@@ -589,7 +617,7 @@ app.post('/webhook', (request, response) => {
 app.post('/status', (request, response) => {
     log.debug('Parent status:', request.body);
     const sid = request.body.CallSid;
-    if (sid && sid in currentCalls) {
+    if (sid &amp;&amp; sid in currentCalls) {
         currentCalls[sid]._respondToStatusCallback(request, response);
     } else {
         log.warn('Call', sid, 'not found in current calls');
@@ -604,7 +632,7 @@ app.post('/status', (request, response) => {
 app.post('/dial', (request, response) => {
     log.debug('Child status:', request.body);
     const sid = request.body.CallSid;
-    if (sid && sid in currentCalls) {
+    if (sid &amp;&amp; sid in currentCalls) {
         currentCalls[sid]._respondToChildStatusCallback(request, response);
     } else {
         log.warn('Parent call', sid, 'not found in current calls');
@@ -636,7 +664,7 @@ app.post('/inbound', (request, response) => {
 app.post('/amd', (request, response) => {
     log.debug('Async AMD callback:', request.body);
     const sid = request.body.CallSid;
-    if (sid && sid in currentCalls) {
+    if (sid &amp;&amp; sid in currentCalls) {
         currentCalls[sid]._respondToAmdStatusCallback(request, response);
     } else {
         log.warn('Call', sid, 'not found in current calls');
@@ -684,4 +712,26 @@ export async function setup(options={}) {
     }
     
     app.listen(port, () => log.info('Server running on port', port, 'with URL', serverUrl));
-}
+}</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-call.html">call</a></li><li><a href="module-client.html">client</a></li><li><a href="module-ngrok.html">ngrok</a></li><li><a href="module-phonenumbers.html">phonenumbers</a></li><li><a href="module-timeout.html">timeout</a></li></ul><h3>Classes</h3><ul><li><a href="module-call.Call.html">Call</a></li><li><a href="module-call.CallEndedException.html">CallEndedException</a></li><li><a href="module-timeout.Timeout.html">Timeout</a></li><li><a href="module-timeout.TimeoutException.html">TimeoutException</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.2</a> on Mon Jul 17 2023 20:34:39 GMT-0400 (Eastern Daylight Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

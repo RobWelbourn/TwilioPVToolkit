@@ -1,7 +1,7 @@
 /**
- * @module utils/phonenumbers
+ * @module phonenumbers
  * 
- * Module that provides a wrapper around libphonenumber-js to allow parsing of phone numbers using the 
+ * @description This module provides a wrapper around libphonenumber-js, to allow parsing of phone numbers using the 
  * local machine's locale as the default.
  * @see {@link https://gitlab.com/catamphetamine/libphonenumber form-js}
  */

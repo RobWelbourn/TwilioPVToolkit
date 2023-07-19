@@ -1,0 +1,8 @@
+{
+    "source": {
+        "include": ["./src", "./src/utils"]
+    },
+    "opts": {
+        "destination": "./docs"
+    }
+}

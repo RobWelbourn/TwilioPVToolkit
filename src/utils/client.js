@@ -1,7 +1,7 @@
 /**
  * @module client
  * 
- * The client module provides support for creating a Twilio API client.  The getClient() function will accept 
+ * @description The client module provides support for creating a Twilio API client.  The getClient() function will accept 
  * an account SID and API key+secret, or else it will look for the standard environment variables TWILIO_ACCOUNT_SID, 
  * TWILIO_API_KEY and TWILIO_API_SECRET, first in the operating system environment, and then in the Node.js .env file.
  */
