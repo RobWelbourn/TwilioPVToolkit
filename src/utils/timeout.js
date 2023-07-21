@@ -1,11 +1,13 @@
 /**
  * @module timeout
  * 
- * @decription Provides classes for applying timeouts to async operations.  Example usage:
+ * @description Provides classes for applying timeouts to async operations.
  * 
+ * @example
  * await new Timeout(2000).wait();  // wait 2000 milliseconds
  * // then do something
  * 
+ * @example
  * try {
  *     response = await new Timeout(2000, "Fetch timed out").apply(fetch(url));
  *     // process fetch results
@@ -13,7 +15,6 @@
  *     if (err instanceof TimeoutException) console.log(err.message);
  *     else throw err;
  * }
- * 
  */
 
 /**
@@ -34,22 +35,22 @@ export class Timeout {
      * Constructor.
      * @param {int} delay - Delay in milliseconds
      * @param {string} reason - Message passed to TimeoutException; the Promise will be rejected, if set. 
-     *                          If omitted, the Promise will be resolved.
+     *                          If omitted, the Promise will be fulfilled.
      */
     constructor(delay, reason) {
-        this.#promise = new Promise((resolve, reject) => {       
+        this.#promise = new Promise((fulfill, reject) => {       
             this.#timerId = setTimeout(() => {
-                if (reason === undefined) resolve();
+                if (reason === undefined) fulfill();
                 else reject(new TimeoutException(reason));
             }, delay);
         });
     }
 
     /**
-     * Applies the timeout to some operation that will be completed when its Promise is resolved.  
-     * If the operation times out, the Timeout will (usually) reject with a TimeoutException.
+     * Applies the timeout to some operation that will be completed when its Promise is fulfilled.  
+     * If the operation times out, the Timeout will reject with a TimeoutException.
      * @param {Promise} promise - The timeout will be applied to this Promise
-     * @returns {Promise} - Either the timeout, usually rejected, or the input Promise, usually resolved 
+     * @returns {Promise} - Either the timeout, upon rejection, or the input Promise, upon fulfillment.
      */
     apply(promise) {
         return Promise.race([
@@ -69,7 +70,7 @@ export class Timeout {
 
     /**
      * Waits for the Timeout.
-     * @returns {Promise} that resolves (or rejcts) when the Timeout expires.
+     * @returns {Promise} that fulfills (or rejects) when the Timeout expires.
      */
     wait() {
         return this.#promise;

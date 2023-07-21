@@ -3,7 +3,7 @@
  * 
  * @description This module provides a wrapper around libphonenumber-js, to allow parsing of phone numbers using the 
  * local machine's locale as the default.
- * @see {@link https://gitlab.com/catamphetamine/libphonenumber form-js}
+ * @see https://gitlab.com/catamphetamine/libphonenumber
  */
 
 import parsePhoneNumber from 'libphonenumber-js';
@@ -14,7 +14,7 @@ const localeCountry = locale.split('-')[1];
 /**
  * Parses a phone number, possibly including spaces and punctuation, taking into account local dialing conventions.
  * @param {string} pn - The phone number to parse
- * @param {string} {countryCode} - Two-letter ISO 3166 country code; defaults to locale of local machine
+ * @param {string} countryCode - Two-letter ISO 3166 country code; defaults to locale of local machine
  * @returns {string} - E.164 (international) format phone number, with no punctuation
  */
 export function parsePN(pn, countryCode) {

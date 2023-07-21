@@ -3,15 +3,14 @@
  * 
  * @description The call module provides classes for call handling. It also configures and starts an Express web server 
  * to handle the associated webhooks and status callbacks. It exports the following:
- * <ol>
- * <li> The Call class, which encapsulates a running call and its state. It wraps a Twilio VoiceResponse object that is
- *      used to generate TwiML in response to webhooks.
  * 
- * <li> The CallEndedException class, which is used to indicate that a call has ended prematurely, usually because the far
- *      end has hung up before a script has finished executing.
+ * 1. The Call class, which encapsulates a running call and its state. It wraps a Twilio VoiceResponse object that is
+ * used to generate TwiML in response to webhooks.
  * 
- * <li> The setup() function, which is used to configure and start the Express web server.
- * </ol>
+ * 2. The CallEndedException class, which is used to indicate that a call has ended prematurely, usually because the far
+ * end has hung up before a script has finished executing.
+ * 
+ * 3. The setup() function, which is used to configure and start the Express web server.
  */
 
 import express from 'express';
@@ -56,11 +55,11 @@ export class CallEndedException extends Error {
 /**
  * @classdesc
  * Represents the state of a call. This class wraps a Twilio VoiceResponse object used to generate TwiML.
- * A Call object responds to webhooks and status callbacks, which settle a Promise that allows the next step  
+ * A Call object responds to webhooks and status callbacks, which settle a Promise that allows the next step 
  * in the script to be executed.
- * <br>
+ * 
  * Call properties are derived from the results of an outbound API call, webhooks or status callbacks,
- * with the exceptions of eventSource and childCalls.  The most important ones are listed below.  
+ * with the exceptions of eventSource and childCalls.  The most important ones are listed below. 
  * A definitive list is returned by the propertyMappings property.  Some properties are only applicable to childCalls.
  */
 export class Call {
@@ -649,10 +648,12 @@ app.post('/amd', (request, response) => {
  * Configures the Express server and sets it running. If no URL is specified, 
  * an attempt is made to use a locally running Ngrok tunnel. 
  * @param {Object} [options] - Options
- * @param {Object} [options.client=Created from TWILIO_ACCOUNT_SID, TWILIO_API_KEY and TWILIO_API_SECRET] - 
- * client with which to access the Twilio REST API
- * @param {string} [options.serverUrl=Ngrok tunnel public URL] - Server URL for webhooks and callbacks
- * @param {string} [options.port=Ngrok local port, or 3000 if not using Ngrok] - Server TCP port
+ * @param {Object} [options.client] - Client with which to access the Twilio REST API.
+ * Created from TWILIO_ACCOUNT_SID, TWILIO_API_KEY and TWILIO_API_SECRET if not specified.
+ * @param {string} [options.serverUrl] - Server URL for webhooks and callbacks. If not specified, uses
+ * Ngrok tunnel public URL.
+ * @param {string} [options.port] - Server TCP port. If not specified, uses Ngrok local port, 
+ * or 3000 if not using Ngrok.
  * @param {Function} [options.script] - Function to invoke upon post to '/inbound' webhook
  * @param {string} [options.phoneNumber] - Configures a Twilio phone number to handle inbound calls
  * @returns {Promise} - Promise resolved when server has been started
