@@ -55,7 +55,7 @@ export class Timeout {
     apply(promise) {
         return Promise.race([
             this.#promise, 
-            promise.then(       // Make sure we clear the timeout if the operation completes in time
+            promise.then(       // Make sure we clear the timeout
                 result => {
                     clearTimeout(this.#timerId);
                     return result;
