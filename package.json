@@ -22,6 +22,9 @@
   "devDependencies": {
     "jest": "^29.5.0"
   },
+  "engines": {
+      "node": ">=18"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "doc": "jsdoc2md src/call.js src/utils/* --partial scope.hbs > docs/docs.md"
