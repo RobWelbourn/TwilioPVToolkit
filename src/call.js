@@ -416,7 +416,7 @@ export class Call {
 
     /**
      * Generates the accumulated TwiML from the wrapped VoiceResponse object, and signals to the webhook handler
-     * that it is ready to be sent. If this is a non-final response, a <Redirect> is added to the end of the TwiML
+     * that it is ready to be sent. If this is a non-final response, a &lt;Redirect&gt; is added to the end of the TwiML
      * to ensure that control is returned to the script.
      * @returns {Promise} - Promise that will be settled by the next webhook or status callback
      */

@@ -111,7 +111,7 @@ Used to indicate that a call has ended prematurely, before the end of a script h
 Represents the state of a call. This class wraps a Twilio VoiceResponse object used to generate TwiML.
 A Call object responds to webhooks and status callbacks, which settle a Promise that allows the next step 
 in the script to be executed.
-<br>
+
 Call properties are derived from the results of an outbound API call, webhooks or status callbacks,
 with the exceptions of eventSource and childCalls.  The most important ones are listed below. 
 A definitive list is returned by the propertyMappings property.  Some properties are only applicable to childCalls.
@@ -403,7 +403,7 @@ to note that no forther webhooks should be expected after the response has been 
 
 #### call.sendResponse() ⇒ <code>Promise</code>
 Generates the accumulated TwiML from the wrapped VoiceResponse object, and signals to the webhook handler
-that it is ready to be sent. If this is a non-final response, a <Redirect> is added to the end of the TwiML
+that it is ready to be sent. If this is a non-final response, a &lt;Redirect&gt; is added to the end of the TwiML
 to ensure that control is returned to the script.
 
 **Kind**: instance method of [<code>Call</code>](#module_call.Call)  
