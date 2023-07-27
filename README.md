@@ -75,7 +75,7 @@ The tunnel will take HTTPS traffic on port 443 and feed it to your local web ser
 
 Before you get started, you should understand how to use JavaScript Promises. PV Toolkit scripts will typically make heavy use of the `await` keyword when they are waiting for the Twilio API to perform some action, and accidentally omitting an `await` will cause your program to race ahead with unpredictable results. Sometimes you _do_ want to carry on without waiting, for example to make a number of outbound calls in parallel, in which case you will handle the results of your actions asynchronously.
 
-If you are new to Promises, there is a very good explanation at (JavaScript.info)[https://javascript.info/promise-basics], and they are also covered in detail in the blog post.
+If you are new to Promises, there is a very good explanation at [JavaScript.info](https://javascript.info/promise-basics), and they are also covered in detail in the blog post.
 
 Perhaps the best way of understanding how to use the PV Toolkit is to examine the sample apps. What follows below is the bare minimum to get started.
 
@@ -121,9 +121,9 @@ Server running on port 3000 with URL https://a764622e77ec.ngrok.app
 Call status: completed
 ```
 
-The call to `setup()` uses Twilio account credentials stored in the standard environment variables TWILIO_ACCOUNT_SID, TWILIO_API_KEY and TWILIO_API_SECRET to create a REST API client; it finds a locally running Ngrok tunnel and determines its public URL; and it sets the Express web server running, ready to receive Twilio's webhooks and status callback requests. When that is complete, the function `script()` is run, using the command line parameters provided. Finally, when the script is complete, the call to `process.exit()` shuts down the web server.
+The call to `setup()` uses Twilio account credentials stored in the standard environment variables `TWILIO_ACCOUNT_SID`, `TWILIO_API_KEY` and `TWILIO_API_SECRET` to create a REST API client; it finds a locally running Ngrok tunnel and determines its public URL; and it sets the Express web server running, ready to receive Twilio's webhooks and status callback requests. When that is complete, the function `script()` is run, using the command line parameters provided. Finally, when the script is complete, the call to `process.exit()` shuts down the web server.
 
-The script uses the `Call.makeCall()` factory method to make an outbound call via the Twilio API and create a `Call` object. Notice the use of `await` to wait for Twilio to return with the result of the call, whereupon we can check whether or not it was answered. If so, the script executes some TwiML, using methods that will be familiar to anyone who has used the Twilio Node.js helper library for call handling. The method `sendResponse()` returns the TwiML in the response, and again we `await` the next event, which will be the status callback to indicate the end of the call. See the [Call documentation](docs/docs.md#callcall) for details of these methods.
+The script uses the `Call.makeCall()` factory method to make an outbound call via the Twilio API and create a `Call` object. Notice the use of `await` to wait for Twilio to return with the result of the call, whereupon we can check whether or not it was answered. If so, the script executes some TwiML, using methods that will be familiar to anyone who has used the Twilio Node.js helper library for call handling. The method `sendResponse()` returns the TwiML in the response, and again we `await` the next event, which will be the status callback to indicate the end of the call. See the [`Call` documentation](docs/docs.md#callcall) for details of these methods.
 
 It's always good practice to catch errors, and you should look for `CallEndedException` in particular: it tells you that the call has been hung up before the script was completed.
 
@@ -164,13 +164,13 @@ setup({ script, phoneNumber: args[0] })
 You pass in, on the command line, one of your Twilio phone numbers, which will be configured with the URL of the script via the `setup()` function:
 
 ```txt
-$node gather.js +1463xxxxxxx
+$ node gather.js +1463xxxxxxx
 Provisioned (463) xxx-xxxx with voice URL https://a764622e77ec.ngrok.app/inbound
 Script is ready
 Server running on port 3000 with URL https://a764622e77ec.ngrok.app
 ```
 
-When you dial the number you will be prompted to say something, and the program will print out what the speech recognition service thought you said, and its degree of confidence, until the call is hung up.
+When you dial the number, you will be prompted to say something, and the program will print out what the speech recognition service thought you said, and its degree of confidence, until the call is hung up.
 
 Notice that the result of the `gather()` is stored as a property of the `Call` object, along with all the other attributes of interest, which are updated whenever a webhook or status callback is received. (Every time `gather()` is invoked, any previous results will be deleted.)
 
