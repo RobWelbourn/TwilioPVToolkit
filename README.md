@@ -10,7 +10,7 @@ The PV Toolkit makes use of the following:
 - [Ngrok](https://ngrok.com/), for securely tunneling Twilio webhooks when running your apps behind a firewall. (Optional)
 - JavaScript [Promises](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise), the programming construct that allows you to perform an operation and wait for the result.
 
-A post describing how to use the PV Toolkit, how it was built, and the use of Promises, can be found on the Twilio Blog (link TBD).
+A post describing how to use the PV Toolkit, how it was built, and the use of Promises, can be found on the [Twilio Blog](https://www.twilio.com/blog/voice-javascript-promises-node).
 
 # Toolkit contents
 
@@ -75,7 +75,7 @@ The tunnel will take HTTPS traffic on port 443 and feed it to your local web ser
 
 Before you get started, you should understand how to use JavaScript Promises. PV Toolkit scripts will typically make heavy use of the `await` keyword when they are waiting for the Twilio API to perform some action, and accidentally omitting an `await` will cause your program to race ahead with unpredictable results. Sometimes you _do_ want to carry on without waiting, for example to make a number of outbound calls in parallel, in which case you will handle the results of your actions asynchronously.
 
-If you are new to Promises, there is a very good explanation at [JavaScript.info](https://javascript.info/promise-basics), and they are also covered in detail in the blog post.
+If you are new to Promises, there is a very good explanation at [JavaScript.info](https://javascript.info/promise-basics), and they are also covered in detail in the [blog post](https://www.twilio.com/blog/voice-javascript-promises-node).
 
 Perhaps the best way of understanding how to use the PV Toolkit is to examine the sample apps. What follows below is the bare minimum to get started.
 
