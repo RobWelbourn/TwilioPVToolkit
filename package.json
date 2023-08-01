@@ -27,7 +27,7 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "doc": "jsdoc2md src/call.js src/utils/* --partial scope.hbs > docs/docs.md"
+    "doc": "jsdoc2md src/call.js src/utils/* --partial docs/scope.hbs > docs/docs.md"
   },
   "repository": {
     "type": "git",
