@@ -1,16 +1,17 @@
 {
   "name": "twiliopvtoolkit",
   "description": "Voice scripting with the Twilio API",
-  "version": "0.1.4",
+  "version": "0.2.0",
   "main": "call.js",
   "type": "module",
   "author": "Robert Welbourn rwelbourn@twilio.com https://linkedin.com/RobertWelbourn",
   "license": "MIT",
-  "homepage": "https://github.com/RobWelbourn/TwilioPVToolkit#readme",
+  "homepage": "https://github.com/RobWelbourn/TwilioPVToolkit",
   "keywords": [
     "Twilio",
     "voice",
-    "JavaScript"
+    "JavaScript",
+    "Node.js"
   ],
   "dependencies": {
     "dotenv": "^16.3.1",
@@ -26,8 +27,12 @@
       "node": ">=18"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "node --experimental-vm-modules --no-warnings node_modules/jest/bin/jest.js",
     "doc": "jsdoc2md src/call.js src/utils/* --partial docs/scope.hbs > docs/docs.md"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "transform": {}
   },
   "repository": {
     "type": "git",
