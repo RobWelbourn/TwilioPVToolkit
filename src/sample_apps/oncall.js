@@ -19,7 +19,7 @@
  * your web server URL.
  */
 
-import { Call, CallEndedException, setup } from '../call.js';
+import { Call, CallEndedException, setup, shutDown } from '../call.js';
 import { datasets } from './datasets.js';
 
 const script = async function(team, fromNum, message) {
@@ -106,7 +106,7 @@ if (args.length < 3) {
     setup()
         .then(() => script(team, fromNum, message))
         .catch(err => console.error(err))
-        .finally(() => process.exit(0));  // Shuts down the web server
+        .finally(() => shutDown());  // Shuts down the web server
 } else {
     console.error(`Team dataset ${args[0]} could not be found`);
 }

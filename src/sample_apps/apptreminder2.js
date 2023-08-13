@@ -16,7 +16,7 @@
  * your web server URL.
  */
 
-import { Call, CallEndedException, setup } from '../call.js';
+import { Call, CallEndedException, setup, shutDown } from '../call.js';
 import { Timeout } from '../utils/timeout.js';
 import { nationalPN } from '../utils/phonenumbers.js';
 import { datasets } from './datasets.js';
@@ -148,7 +148,7 @@ if (args.length == 0) {
     setup()
         .then(() => script(datasets.get(args[0])))
         .catch(err => console.error(err))
-        .finally(() => process.exit(0));  // Shuts down the web server
+        .finally(() => shutDown());  // Shuts down the web server
 } else {
     console.error(`Appointment dataset ${args[0]} could not be found`);
 }

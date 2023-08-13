@@ -2,7 +2,7 @@
  * A simple example script for making an outbound call and collecting some information using an IVR.
  */
 
-import {Call, CallEndedException, setup} from '../call.js';
+import { Call, CallEndedException, setup, shutDown } from '../call.js';
 
 async function script(to, from) {
     let call;
@@ -48,5 +48,5 @@ if (args.length < 2) {
     setup()
         .then(() => script(args[0], args[1]))
         .catch(err => console.error(err))
-        .finally(() => process.exit(0)); 
+        .finally(() => shutDown()); 
 }
