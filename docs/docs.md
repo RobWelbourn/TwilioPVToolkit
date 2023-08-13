@@ -3,7 +3,7 @@
 <dl>
 <dt><a href="#module_call">call</a></dt>
 <dd><p>The call module provides classes for call handling. It also configures and starts an Express web server 
-to handle the associated webhooks and status callbacks. It exports the following:</p>
+to handle the associated webhooks and status callbacks. It primarily provides the following:</p>
 <ol>
 <li><p>The Call class, which encapsulates a running call and its state. It wraps a Twilio VoiceResponse object that is
 used to generate TwiML in response to webhooks.</p>
@@ -30,13 +30,23 @@ local machine&#39;s locale as the default.</p>
 <dt><a href="#module_timeout">timeout</a></dt>
 <dd><p>Provides classes for applying timeouts to async operations.</p>
 </dd>
+<dt><a href="#twiml
+
+Provides a factory function to create TwiML, containing a [VoiceResponse]
+{@link https_//www.twilio.com/docs/libraries/reference/twilio-node/4.8.0/classes/twiml_VoiceResponse.export_-1.html}
+object with attribute validation that prevents unsafe TwiML from being created.module_">twiml
+
+Provides a factory function to create TwiML, containing a [VoiceResponse]
+{@link https://www.twilio.com/docs/libraries/reference/twilio-node/4.8.0/classes/twiml_VoiceResponse.export_-1.html}
+object with attribute validation that prevents unsafe TwiML from being created.</a></dt>
+<dd></dd>
 </dl>
 
 <a name="module_call"></a>
 
 ## call
 The call module provides classes for call handling. It also configures and starts an Express web server 
-to handle the associated webhooks and status callbacks. It exports the following:
+to handle the associated webhooks and status callbacks. It primarily provides the following:
 
 1. The Call class, which encapsulates a running call and its state. It wraps a Twilio VoiceResponse object that is
 used to generate TwiML in response to webhooks.
@@ -89,7 +99,9 @@ end has hung up before a script has finished executing.
         * _static_
             * [.propertyMappings](#module_call.Call.propertyMappings)
             * [.makeCall(to, from, [options])](#module_call.Call.makeCall) ⇒ <code>Promise</code>
+    * [.getUrl(key)](#module_call.getUrl) ⇒ <code>string</code>
     * [.setup([options])](#module_call.setup) ⇒ <code>Promise</code>
+    * [.shutDown([callback])](#module_call.shutDown) ⇒ <code>Promise</code>
 
 <a name="module_call.CallEndedException"></a>
 
@@ -401,13 +413,24 @@ Factory method to create an outbound call.
 
 **Returns**: <code>Promise</code> - - Promise that resolves to the Call object  
 **See**: [https://www.twilio.com/docs/voice/api/call-resource#create-a-call-resource](https://www.twilio.com/docs/voice/api/call-resource#create-a-call-resource)
-                DO NOT set the twiml, url or statusCallback properties, as these will be handled automatically.  
+                DO NOT set the url or statusCallback properties, as these will be handled automatically.  
 
 | Param | Type | Description |
 | --- | --- | --- |
 | to | <code>string</code> | To number, SIP URI or Programmable Voice Client id |
 | from | <code>string</code> | From number |
 | [options] | <code>Object</code> | Call options, including recording, answering machine detection, etc. |
+
+<a name="module_call.getUrl"></a>
+
+### call.getUrl(key) ⇒ <code>string</code>
+Returns the webhook or status callback URL for a particular purpose.
+
+**Returns**: <code>string</code> - - The URL  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| key | <code>string</code> | One of ['webhook', 'status', 'dial', 'inbound', 'amd'] |
 
 <a name="module_call.setup"></a>
 
@@ -425,6 +448,17 @@ an attempt is made to use a locally running Ngrok tunnel.
 | [options.port] | <code>string</code> | Server TCP port. If not specified, uses Ngrok local port,  or 3000 if not using Ngrok. |
 | [options.script] | <code>function</code> | Function to invoke upon post to '/inbound' webhook |
 | [options.phoneNumber] | <code>string</code> | Configures a Twilio phone number to handle inbound calls |
+
+<a name="module_call.shutDown"></a>
+
+### call.shutDown([callback]) ⇒ <code>Promise</code>
+Shuts down the Express server.
+
+**Returns**: <code>Promise</code> - - Promise resolved when the sever has been shut down.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| [callback] | <code>function</code> | Callback function to inform caller when server has been fully shut down. (Usefull for Jest test suites.) |
 
 <a name="module_client"></a>
 
@@ -566,3 +600,14 @@ If the operation times out, the Timeout will reject with a TimeoutException.
 Waits for the Timeout.
 
 **Returns**: <code>Promise</code> - that fulfills (or rejects) when the Timeout expires.  
+<a name="twiml
+
+Provides a factory function to create TwiML, containing a [VoiceResponse]
+{@link https_//www.twilio.com/docs/libraries/reference/twilio-node/4.8.0/classes/twiml_VoiceResponse.export_-1.html}
+object with attribute validation that prevents unsafe TwiML from being created.module_"></a>
+
+## twiml
+
+Provides a factory function to create TwiML, containing a [VoiceResponse]
+{@link https://www.twilio.com/docs/libraries/reference/twilio-node/4.8.0/classes/twiml\_VoiceResponse.export\_-1.html}
+object with attribute validation that prevents unsafe TwiML from being created.
