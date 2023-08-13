@@ -30,16 +30,11 @@ local machine&#39;s locale as the default.</p>
 <dt><a href="#module_timeout">timeout</a></dt>
 <dd><p>Provides classes for applying timeouts to async operations.</p>
 </dd>
-<dt><a href="#twiml
-
-Provides a factory function to create TwiML, containing a [VoiceResponse]
-{@link https_//www.twilio.com/docs/libraries/reference/twilio-node/4.8.0/classes/twiml_VoiceResponse.export_-1.html}
-object with attribute validation that prevents unsafe TwiML from being created.module_">twiml
-
-Provides a factory function to create TwiML, containing a [VoiceResponse]
-{@link https://www.twilio.com/docs/libraries/reference/twilio-node/4.8.0/classes/twiml_VoiceResponse.export_-1.html}
-object with attribute validation that prevents unsafe TwiML from being created.</a></dt>
-<dd></dd>
+<dt><a href="#module_twiml">twiml</a></dt>
+<dd><p>Provides a factory function to create TwiML, containing a [VoiceResponse]
+<a href="https://www.twilio.com/docs/libraries/reference/twilio-node/4.8.0/classes/twiml_VoiceResponse.export_-1.html">https://www.twilio.com/docs/libraries/reference/twilio-node/4.8.0/classes/twiml_VoiceResponse.export_-1.html</a>
+object with attribute validation that prevents &quot;unsafe&quot; TwiML from being created.</p>
+</dd>
 </dl>
 
 <a name="module_call"></a>
@@ -600,14 +595,18 @@ If the operation times out, the Timeout will reject with a TimeoutException.
 Waits for the Timeout.
 
 **Returns**: <code>Promise</code> - that fulfills (or rejects) when the Timeout expires.  
-<a name="twiml
-
-Provides a factory function to create TwiML, containing a [VoiceResponse]
-{@link https_//www.twilio.com/docs/libraries/reference/twilio-node/4.8.0/classes/twiml_VoiceResponse.export_-1.html}
-object with attribute validation that prevents unsafe TwiML from being created.module_"></a>
+<a name="module_twiml"></a>
 
 ## twiml
-
 Provides a factory function to create TwiML, containing a [VoiceResponse]
-{@link https://www.twilio.com/docs/libraries/reference/twilio-node/4.8.0/classes/twiml\_VoiceResponse.export\_-1.html}
-object with attribute validation that prevents unsafe TwiML from being created.
+[https://www.twilio.com/docs/libraries/reference/twilio-node/4.8.0/classes/twiml_VoiceResponse.export_-1.html](https://www.twilio.com/docs/libraries/reference/twilio-node/4.8.0/classes/twiml_VoiceResponse.export_-1.html)
+object with attribute validation that prevents "unsafe" TwiML from being created.
+
+<a name="module_twiml.makeTwiml"></a>
+
+### twiml.makeTwiml() ⇒ <code>VoiceResponse</code>
+Returns a [VoiceResponse]
+[https://www.twilio.com/docs/libraries/reference/twilio-node/4.8.0/classes/twiml_VoiceResponse.export_-1.html](https://www.twilio.com/docs/libraries/reference/twilio-node/4.8.0/classes/twiml_VoiceResponse.export_-1.html) 
+object, suitable for generating "safe" TwiML that does not break the PV Toolkit.
+
+**Returns**: <code>VoiceResponse</code> - - Proxied VoiceResponse object for generating TwiML  
