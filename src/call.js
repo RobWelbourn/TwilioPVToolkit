@@ -2,7 +2,7 @@
  * @module call
  * 
  * @description The call module provides classes for call handling. It also configures and starts an Express web server 
- * to handle the associated webhooks and status callbacks. It exports the following:
+ * to handle the associated webhooks and status callbacks. It primarily provides the following:
  * 
  * 1. The Call class, which encapsulates a running call and its state. It wraps a Twilio VoiceResponse object that is
  * used to generate TwiML in response to webhooks.
@@ -15,9 +15,9 @@
 
 import express from 'express';
 import log from 'loglevel';
-import VoiceResponse from 'twilio/lib/twiml/VoiceResponse.js';
 import { getTunnelInfo } from './utils/ngrok.js';
 import { getClient } from './utils/client.js';
+import { makeTwiml, _makeTwiml, forbiddenAttributes } from './utils/twiml.js';
 
 const logLevel = process.env.DEBUG;
 log.setLevel(logLevel ? logLevel : 'info');
@@ -25,8 +25,14 @@ log.setLevel(logLevel ? logLevel : 'info');
 const DEFAULT_PORT = 3000;
 
 let client;
+let server;
 let port;
-let serverUrl;
+let serverUrl = '';
+let webhookUrl = '/webhook'; 
+let dialUrl = '/dial';
+let statusUrl = '/status';
+let inboundUrl = '/inbound';
+let amdUrl = '/amd';
 let inboundScript;
 
 const defaultInboundScript = async function(call) {
@@ -36,6 +42,7 @@ const defaultInboundScript = async function(call) {
 }
 
 const currentCalls = {};    // Associative array of current calls, indexed by call SID
+
 
 /**
  * @classdesc
@@ -52,6 +59,7 @@ export class CallEndedException extends Error {
     }
 }
 
+
 /**
  * @classdesc
  * Represents the state of a call. This class wraps a Twilio VoiceResponse object used to generate TwiML.
@@ -67,7 +75,7 @@ export class Call {
     #webhookReject;             // Called in the event of the other end hanging up prematurely, or some other failure
     #twimlFulfill;              // Called when new TwiML is available to be returned by a webhook
     #twimlReject;               // Would indicate an internal failure in response to a webhook; not currently used
-    #voiceResponse;             // Wrapped VoiceResponse object, used to generate TwiML
+    #twiml;                     // Wrapped VoiceResponse object, used to generate TwiML
     #scriptContinues = true;    // True when more TwiML is to be returned
 
     /**  Array of dialed (child) calls  */
@@ -175,75 +183,44 @@ export class Call {
         this.#updateProperties(properties);
         this.#webhookFulfill = webhookFulfill;
         this.#webhookReject = webhookReject;
-        this.#voiceResponse = new VoiceResponse();
+        this.#twiml = _makeTwiml();
     }
 
-    /*
-     * Validates options passed to makeCall() and various TwiML-generating verbs, to ensure compatibility
-     * with how the Call module works.
-     */
-    static #validateOptions(options) {
-        for (let option in options) {
-            switch (option) {
-                case 'accountSid':                  // In makeCall() and various <Dial> nouns...
-                case 'method':
-                case 'fallbackUrl':
-                case 'fallbackMethod':
-                case 'statusCallback':
-                case 'statusCallbackMethod':
-                case 'url':
-                case 'twiml':
-                case 'applicationSid':
-                case 'action':                      // In <Dial> and <Gather>
-                case 'partialResultsCallback':      // In <Gather>...
-                case 'partialResultsCallbackMethod':
-                case 'actionOnEmptyResult':
-                    throw new Error(`${option} is not allowed in this context`, {cause: {option}});
-
-                case 'to':                          // In makeCall()...
-                case 'from':
-                    throw new Error(`${option} in options duplicates the ${option} parameter`, {cause: {option}});
-
-                case 'referUrl':                    // In <Dial>...
-                case 'referMethod':
-                    throw new Error('Refer is not currently supported', {cause: {option}});
-
-                // If there's a list of statusCallback events, make sure 'completed' is included.
-                case 'statusCallbackEvent':
-                    if (!options.statusCallbackEvent.includes('completed')) {
-                        options.statusCallbackEvent.push('completed');
-                    }
-                    break;
-
-                // If async AMD is being invoked, set the callback URL.
-                case 'asyncAmd':
-                    options.asyncAmdStatusCallback = `${serverUrl}/amd`;
-                    options.asyncAmdStatusCallbackMethod = 'POST';
-                    break;  
-            }
-        }
-    }
-    
     /**
      * Factory method to create an outbound call.
      * @param {string} to - To number, SIP URI or Programmable Voice Client id
      * @param {string} from - From number
      * @param {Object} [options] - Call options, including recording, answering machine detection, etc.
      *                 @see {@link https://www.twilio.com/docs/voice/api/call-resource#create-a-call-resource}
-     *                 DO NOT set the twiml, url or statusCallback properties, as these will be handled automatically.
+     *                 DO NOT set the url or statusCallback properties, as these will be handled automatically.
      * @returns {Promise} - Promise that resolves to the Call object
-     */
-    static makeCall(to, from, options) {
-        Call.#validateOptions(options);
+    */
+   static makeCall(to, from, options={}) {
+        // Sanitize options
+        for (let option in options) {
+            if (forbiddenAttributes.includes(option))
+                throw new TypeError(`${option} is not allowed in Call.makeCall()`);
+
+            if (option === 'statusCallbackEvent') {
+                // If there's a list of statusCallback events, make sure 'completed' is included.
+                if (!options.statusCallbackEvent.includes('completed')) {
+                    options.statusCallbackEvent.push('completed');
+                }
+
+            } else if (option === 'asyncAmd') {
+                // If async AMD is being invoked, set the callback URL.
+                options.asyncAmdStatusCallback = amdUrl;
+            }
+        }
+
+        options.to = to;
+        options.from = from;
+        options.url = webhookUrl;
+        options.statusCallback = statusUrl;
+
         return new Promise((fulfill, reject) => {
             client.calls
-                .create({
-                    to,
-                    from,
-                    ...options,
-                    url: `${serverUrl}/webhook?source=makeCall`,
-                    statusCallback: `${serverUrl}/status`
-                })
+                .create(options)
                 .then(callProperties => {
                     const call = new Call(callProperties, fulfill, reject);
                     call.eventSource = 'api';
@@ -334,21 +311,21 @@ export class Call {
      * @param  {...any} args - See {@link https://www.twilio.com/docs/voice/twiml/say}
      * @returns {Say} - See [VoiceResponse.Say]{@link https://www.twilio.com/docs/libraries/reference/twilio-node/4.8.0/classes/twiml_VoiceResponse.export_-1.html#say}
      */
-    say(...args) { return this.#voiceResponse.say(...args); }
+    say(...args) { return this.#twiml.say(...args); }
 
     /**
      * Calls the play() method of the wrapped VoiceResponse object.
      * @param  {...any} args - @see {@link https://www.twilio.com/docs/voice/twiml/play}
      * @returns {Play} - See [VoiceResponse.Play]{@link https://www.twilio.com/docs/libraries/reference/twilio-node/4.8.0/classes/twiml_VoiceResponse.export_-1.html#play}
      */
-    play(...args) { return this.#voiceResponse.play(...args); }
+    play(...args) { return this.#twiml.play(...args); }
 
     /**
      * Calls the pause() method of the wrapped VoiceResponse object.
      * @param  {...any} args - @see {@link https://www.twilio.com/docs/voice/twiml/pause}
      * @returns {Play} - See [VoiceResponse.Pause]{@link https://www.twilio.com/docs/libraries/reference/twilio-node/4.8.0/classes/twiml_VoiceResponse.export_-1.html#pause}
      */
-    pause(...args) { return this.#voiceResponse.pause(...args); }
+    pause(...args) { return this.#twiml.pause(...args); }
 
     /**
      * Calls the gather() method of the wrapped VoiceResponse object. Any previous gather properties are deleted.
@@ -357,20 +334,11 @@ export class Call {
      * @returns {Gather} - See [VoiceResponse.Gather]{@link https://www.twilio.com/docs/libraries/reference/twilio-node/4.8.0/classes/twiml_VoiceResponse.export_-1.html#gather}
      */
     gather(...args) { 
-        Call.#validateOptions(args);
         delete this.digits;
         delete this.finishedOnKey;
         delete this.speechResult;
         delete this.confidence;
-
-        if (args.length == 0) {
-            return this.#voiceResponse.gather({action: `${serverUrl}/webhook?source=gather`});
-        }else if (typeof args[0] == 'object') {
-            args[0].action = `${serverUrl}/webhook?source=gather`;
-            return this.#voiceResponse.gather(...args);
-        } else {
-            return this.#voiceResponse.gather({action: `${serverUrl}/webhook?source=gather`}, ...args);
-        }
+        return this.#twiml.gather(...args);
     }
 
     /**
@@ -380,17 +348,7 @@ export class Call {
      *                  DO NOT set the action URL; the callback will be handled automatically.
      * @returns {Dial} - See [VoiceResponse.Dial]{@link https://www.twilio.com/docs/libraries/reference/twilio-node/4.8.0/classes/twiml_VoiceResponse.export_-1.html#dial}
      */
-    dial(...args) { 
-        Call.#validateOptions(args);
-        if (args.length == 0) {
-            return this.#voiceResponse.dial({action: `${serverUrl}/dial`});
-        } else if (typeof args[0] == 'object') {
-            args[0].action = `${serverUrl}/dial`;
-            return this.#voiceResponse.dial(...args);
-        } else {
-            return this.#voiceResponse.dial({action: `${serverUrl}/dial`}, ...args);
-        }
-    }
+    dial(...args) { return this.#twiml.dial(...args); }
 
     /**
      * Calls the hangup() method of the wrapped VoiceResponse object. The Call object's state is updated
@@ -400,7 +358,7 @@ export class Call {
      */
     hangup() {
         this.#scriptContinues = false;
-        return this.#voiceResponse.hangup();
+        return this.#twiml.hangup();
     }
 
     /**
@@ -411,7 +369,7 @@ export class Call {
      */
     reject(...args) {
         this.#scriptContinues = false;
-        return this.#voiceResponse.reject(...args);
+        return this.#twiml.reject(...args);
     }
 
     /**
@@ -423,14 +381,13 @@ export class Call {
     sendResponse() {
         return new Promise((fulfill, reject) => {
             if (this.#scriptContinues) {                    // If this is not the last step...
-                this.#voiceResponse.redirect(`${serverUrl}/webhook?source=redirect`); // Make sure Twilio returns control to the script for the next step
+                this.#twiml.redirect(webhookUrl);           // Make sure Twilio returns control to the script for the next step
             }
-            const twiml = this.#voiceResponse.toString();
-            this.#twimlFulfill(twiml);                      // Resolves Promise to send back some TwiML
+            this.#twimlFulfill(this.#twiml.toString());     // Resolves Promise to send back some TwiML
             this.#webhookFulfill = fulfill;                 // Waits for the next webhook or status callback
             this.#webhookReject = reject;                   // Fired if the other end hangs up
             if (this.#scriptContinues) {
-                this.#voiceResponse = new VoiceResponse();  // Creates a new VoiceResponse for the next step
+                this.#twiml = _makeTwiml();                  // Creates a new VoiceResponse for the next step
             }
         });
     }
@@ -443,8 +400,7 @@ export class Call {
     sendFinalResponse() {
         return new Promise((fulfill, reject) => {
             this.#scriptContinues = false;
-            const twiml = this.#voiceResponse.toString();
-            this.#twimlFulfill(twiml);                      // Resolves Promise to send back some TwiML
+            this.#twimlFulfill(this.#twiml.toString());     // Resolves Promise to send back some TwiML
             this.#webhookFulfill = fulfill;                 // Waits for the next webhook or status callback
             this.#webhookReject = reject;                   // Fired if the other end hangs up
         });
@@ -538,7 +494,7 @@ export class Call {
         if (this.#scriptContinues) {
             this.#getTwiml(response);
         } else {
-            const twiml = new VoiceResponse().toString();
+            const twiml = makeTwiml().toString();
             log.debug('TwiML:', twiml);
             response.type('xml').send(twiml).end();
         }
@@ -645,6 +601,22 @@ app.post('/amd', (request, response) => {
 
 
 /**
+ * Returns the webhook or status callback URL for a particular purpose.
+ * @param {string} key - One of ['webhook', 'status', 'dial', 'inbound', 'amd']
+ * @returns {string} - The URL
+ */
+export function getUrl(key) {
+    switch (key) {
+        case 'webhook': return webhookUrl;
+        case 'status': return statusUrl;
+        case 'dial': return dialUrl;
+        case 'inbound': return inboundUrl;
+        case 'amd': return amdUrl;
+        default: throw new TypeError(`No URL for ${key}`);
+    }
+}
+
+/**
  * Configures the Express server and sets it running. If no URL is specified, 
  * an attempt is made to use a locally running Ngrok tunnel. 
  * @param {Object} [options] - Options
@@ -670,6 +642,12 @@ export async function setup(options={}) {
         serverUrl = info.publicUrl;
         port = info.localPort;
     }
+
+    webhookUrl = serverUrl + webhookUrl;
+    statusUrl = serverUrl + statusUrl;
+    dialUrl = serverUrl + dialUrl;
+    inboundUrl = serverUrl + inboundUrl;
+    amdUrl = serverUrl + amdUrl;
     
     if (options.phoneNumber) {
         const matchingNums = await client.incomingPhoneNumbers.list({
@@ -679,10 +657,21 @@ export async function setup(options={}) {
             throw new Error(`Unable to configure ${options.phoneNumber}: not found in this account`);
         }
         const pn = await client.incomingPhoneNumbers(matchingNums[0].sid).update({
-            voiceUrl: serverUrl + '/inbound'
+            voiceUrl: inboundUrl
         });
         log.info('Provisioned', pn.friendlyName, 'with voice URL', pn.voiceUrl);
     }
     
-    app.listen(port, () => log.info('Server running on port', port, 'with URL', serverUrl));
+    log.info('Starting server on port', port, 'with URL', serverUrl)
+    server = app.listen(port);
+}
+
+/**
+ * Shuts down the Express server.
+ * @param {Function} [callback] - Callback function to inform caller when server has been fully shut down.
+ * (Usefull for Jest test suites.)
+ * @returns {Promise} - Promise resolved when the sever has been shut down.
+ */
+export function shutDown(callback) {
+    return server.close(callback);
 }
