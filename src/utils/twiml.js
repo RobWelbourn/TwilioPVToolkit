@@ -1,8 +1,8 @@
 /**
  * @module twiml
  * 
- * Provides a factory function to create TwiML, containing a [VoiceResponse]
- * {@link https://www.twilio.com/docs/libraries/reference/twilio-node/4.8.0/classes/twiml_VoiceResponse.export_-1.html}
+ * @description Provides a factory function to create TwiML, containing a
+ * [VoiceResponse]{@link https://www.twilio.com/docs/libraries/reference/twilio-node/4.8.0/classes/twiml_VoiceResponse.export_-1.html}
  * object with attribute validation that prevents "unsafe" TwiML from being created.
  */
 
@@ -136,10 +136,10 @@ function getProxy(obj, node) {
 }
 
 /**
- * Returns a [VoiceResponse]
- * {@link https://www.twilio.com/docs/libraries/reference/twilio-node/4.8.0/classes/twiml_VoiceResponse.export_-1.html} 
+ * Returns a
+ * [VoiceResponse]{@link https://www.twilio.com/docs/libraries/reference/twilio-node/4.8.0/classes/twiml_VoiceResponse.export_-1.html} 
  * object, suitable for generating "safe" TwiML that does not break the PV Toolkit.
- * @returns { VoiceResponse } - Proxied VoiceResponse object for generating TwiML
+ * @returns { VoiceResponse } Proxied VoiceResponse object for generating TwiML
  */
 export function makeTwiml() {
     return getProxy(new VoiceResponse(), proxyElements);

@@ -605,8 +605,8 @@ object with attribute validation that prevents "unsafe" TwiML from being created
 <a name="module_twiml.makeTwiml"></a>
 
 ### twiml.makeTwiml() ⇒ <code>VoiceResponse</code>
-Returns a [VoiceResponse]
-[https://www.twilio.com/docs/libraries/reference/twilio-node/4.8.0/classes/twiml_VoiceResponse.export_-1.html](https://www.twilio.com/docs/libraries/reference/twilio-node/4.8.0/classes/twiml_VoiceResponse.export_-1.html) 
+Returns a
+[VoiceResponse](https://www.twilio.com/docs/libraries/reference/twilio-node/4.8.0/classes/twiml_VoiceResponse.export_-1.html) 
 object, suitable for generating "safe" TwiML that does not break the PV Toolkit.
 
-**Returns**: <code>VoiceResponse</code> - - Proxied VoiceResponse object for generating TwiML  
+**Returns**: <code>VoiceResponse</code> - Proxied VoiceResponse object for generating TwiML  
