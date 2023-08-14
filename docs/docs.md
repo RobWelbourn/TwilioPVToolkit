@@ -31,8 +31,8 @@ local machine&#39;s locale as the default.</p>
 <dd><p>Provides classes for applying timeouts to async operations.</p>
 </dd>
 <dt><a href="#module_twiml">twiml</a></dt>
-<dd><p>Provides a factory function to create TwiML, containing a [VoiceResponse]
-<a href="https://www.twilio.com/docs/libraries/reference/twilio-node/4.8.0/classes/twiml_VoiceResponse.export_-1.html">https://www.twilio.com/docs/libraries/reference/twilio-node/4.8.0/classes/twiml_VoiceResponse.export_-1.html</a>
+<dd><p>Provides a factory function to create TwiML, containing a
+<a href="https://www.twilio.com/docs/libraries/reference/twilio-node/4.8.0/classes/twiml_VoiceResponse.export_-1.html">VoiceResponse</a>
 object with attribute validation that prevents &quot;unsafe&quot; TwiML from being created.</p>
 </dd>
 </dl>
@@ -598,8 +598,8 @@ Waits for the Timeout.
 <a name="module_twiml"></a>
 
 ## twiml
-Provides a factory function to create TwiML, containing a [VoiceResponse]
-[https://www.twilio.com/docs/libraries/reference/twilio-node/4.8.0/classes/twiml_VoiceResponse.export_-1.html](https://www.twilio.com/docs/libraries/reference/twilio-node/4.8.0/classes/twiml_VoiceResponse.export_-1.html)
+Provides a factory function to create TwiML, containing a
+[VoiceResponse](https://www.twilio.com/docs/libraries/reference/twilio-node/4.8.0/classes/twiml_VoiceResponse.export_-1.html)
 object with attribute validation that prevents "unsafe" TwiML from being created.
 
 <a name="module_twiml.makeTwiml"></a>
